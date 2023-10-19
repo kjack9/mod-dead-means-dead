@@ -1,6 +1,6 @@
 # ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
 
-# Dead Means Dead - A Creature Respawn Customization Module
+# Dead Means Dead<br><sub>Creature Respawn Customization Module</sub>
 
 ## What is this?
 This module allows an AzerothCore server administrator to disable or customize creature respawn times in dungeons, raids, or in the world.
