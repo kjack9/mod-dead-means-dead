@@ -95,10 +95,64 @@ DeadMeansDead.RespawnTime.Adjusted.Min = 300
 DeadMeansDead.RespawnTime.Adjusted.Max = 86400
 
 #
-#   DeadMeansDead.Filter.OnlyKilledByPlayers
+#   DeadMeansDead.Filter.KilledByPlayer
 #
 #       Only adjust creatures that were killed by players?
 #   
 #       Default: 1
 #
-DeadMeansDead.Filter.OnlyKilledByPlayers = 1
+DeadMeansDead.Filter.KilledByPlayer = 1
+
+#
+#   DeadMeansDead.Filter.AlwaysAdjust.InstanceID
+#
+#       A space-delimeted list of instance IDs that should ALWAYS be adjusted.
+#
+#       This list overrides all other filters and any disabled area types.
+#
+#       A full list of instance IDs is available here:
+#       https://wowpedia.fandom.com/wiki/InstanceID#Classic
+#
+#       Example: "123 456 789"
+#
+#       Default: ""   (No overrides)
+#
+DeadMeansDead.Filter.AlwaysAdjust.InstanceID = ""
+
+#
+#   DeadMeansDead.Filter.NeverAdjust.InstanceID
+#
+#       A space-delimeted list of instance IDs that should NEVER be adjusted.
+#
+#       A full list of instance IDs is available here:
+#       https://wowpedia.fandom.com/wiki/InstanceID#Classic
+#
+#       Example: "123 456 789"
+#
+#       Default: ""   (No overrides)
+#
+DeadMeansDead.Filter.NeverAdjust.InstanceID = ""
+
+#
+#   DeadMeansDead.Filter.AlwaysAdjust.CreatureID
+#
+#       A space-delimeted list of creature IDs that should ALWAYS be adjusted.
+#
+#       This list overrides all other filters and any disabled area types.
+#
+#       Example: "123 456 789"
+#
+#       Default: ""   (No overrides)
+#
+DeadMeansDead.Filter.AlwaysAdjust.CreatureID = ""
+
+#
+#   DeadMeansDead.Filter.NeverAdjust.CreatureID
+#
+#       A space-delimeted list of creature IDs that should NEVER be adjusted.
+#
+#       Example: "123 456 789"
+#
+#       Default: ""   (No overrides)
+#
+DeadMeansDead.Filter.NeverAdjust.CreatureID = ""
