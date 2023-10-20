@@ -9,6 +9,9 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 
+// spacer used for logging
+std::string DEAD_MEANS_DEAD_SPACER = "------------------------------------------------";
+
 //
 // Module-defined Classes and Enums
 //
@@ -126,8 +129,13 @@ class DeadMeansDead_WorldScript : public WorldScript
 public:
     DeadMeansDead_WorldScript() : WorldScript("DeadMeansDead_WorldScript") { }
 
-    void OnBeforeConfigLoad(bool /* reload */) override
+    void OnBeforeConfigLoad(bool reload) override
     {
+        if (reload)
+        {
+            options = DeadMeansDead_Options();
+        }
+        
         // load options
         options.LoadOptions();
     }
@@ -163,7 +171,9 @@ public:
         // only adjust the creature if it passes checks
         if (_shouldUnitBeAdjusted(unit, killer))
         {
-            _adjustCreature(unit->ToCreature());
+            Creature* creature = unit->ToCreature();
+
+            _adjustCreature(creature);
         }
 
         return;
@@ -207,29 +217,6 @@ private:
         }
 
         Creature* creature = unit->ToCreature();
-
-        // Construct the killer's ID
-        std::string killerIdStr;
-        if (killer->IsPlayer())
-        {
-            killerIdStr = "Player";
-        }
-        else if (killer->GetEntry())
-        {
-            killerIdStr = std::to_string(killer->GetEntry());
-        }
-        else
-        {
-            killerIdStr = "Unknown ID";
-        }
-        
-        // LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead_UnitScript::_shouldUnitBeAdjusted: Creature {} (ID: {}, Spawn: {}) | killed by {} ({})",
-        //     creature->GetName(),
-        //     creature->GetEntry(),
-        //     creature->GetSpawnId(),
-        //     killer ? killer->GetName() : "Unknown",
-        //     killerIdStr
-        // );
         
         // check to be sure the creature is in a map
         if (!creature->GetMap())
@@ -250,6 +237,8 @@ private:
         // never adjust if the creature's map is in the filterNeverInstanceIDs list
         if(is_uint32_in_list(map->GetId(), options.filterNeverInstanceIDs))
         {
+            _killedByDebug(creature, killer);
+
             LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead_UnitScript::_shouldUnitBeAdjusted: Creature {} (ID: {}, Spawn: {}) | is in map {} ({}), which is in the NEVER instance list. No changes.",
                 creature->GetName(),
                 creature->GetEntry(),
@@ -263,6 +252,8 @@ private:
         // always adjust if the creature's map is in the filterAlwaysInstanceIDs list
         else if(is_uint32_in_list(map->GetId(), options.filterAlwaysInstanceIDs))
         {
+            _killedByDebug(creature, killer);
+            
             LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead_UnitScript::_shouldUnitBeAdjusted: Creature {} (ID: {}, Spawn: {}) | is in map {} ({}), which is in the ALWAYS instance list. ENABLED for adjustments.",
                 creature->GetName(),
                 creature->GetEntry(),
@@ -270,7 +261,6 @@ private:
                 map->GetMapName(),
                 map->GetId()
             );
-
             // continue to creature checks
         }
         // check to be sure the creature is in one of the area types we want to adjust
@@ -281,6 +271,8 @@ private:
             (mapType == MAP_TYPE_WORLD && options.enableWorld)
         )
         {
+            _killedByDebug(creature, killer);
+            
             LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead_UnitScript::_shouldUnitBeAdjusted: Creature {} (ID: {}, Spawn: {}) | is in an area ({}) of type ({}), which is ENABLED for adjustments.",
                 creature->GetName(),
                 creature->GetEntry(),
@@ -367,7 +359,7 @@ private:
         }
 
         // survived to here, so we should adjust the creature
-        LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead_UnitScript::_shouldUnitBeAdjusted: Creature {} (ID: {}, Spawn: {}) | should be adjusted.",
+        LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead_UnitScript::_shouldUnitBeAdjusted: Creature {} (ID: {}, Spawn: {}) | will be adjusted.",
             creature->GetName(),
             creature->GetEntry(),
             creature->GetSpawnId()
@@ -481,6 +473,43 @@ private:
         creatureData->respawnDelayAltered = true;
         creature->SetRespawnDelay(newRespawnTime);
         creature->SetRespawnTime(newRespawnTime);
+        creature->SaveRespawnTime();
+    }
+
+    std::string _getKillerId(Unit* killer)
+    {
+        // Construct the killer's ID
+        std::string killerIdStr;
+        if (killer->IsPlayer())
+        {
+            return "Player";
+        }
+        else if (killer->ToCreature())
+        {
+            return killer->ToCreature()->GetName();
+        }
+        else if (killer->GetEntry())
+        {
+            return std::to_string(killer->GetEntry());
+        }
+        else
+        {
+            return "Unknown ID";
+        }
+    }
+
+    void _killedByDebug(Creature* creature, Unit* killer)
+    {
+        LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead:: {}", DEAD_MEANS_DEAD_SPACER);
+
+        std::string killerIdStr = _getKillerId(killer);
+
+        LOG_DEBUG("module.DeadMeansDead", "DeadMeansDead_UnitScript::_killedByDebug: Creature {} (ID: {}, Spawn: {}) | killed by {}",
+            creature->GetName(),
+            creature->GetEntry(),
+            creature->GetSpawnId(),
+            killerIdStr
+        );
     }
 };
 
