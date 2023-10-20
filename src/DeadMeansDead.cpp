@@ -482,7 +482,7 @@ private:
         std::string killerIdStr;
         if (killer->IsPlayer())
         {
-            return "Player";
+            return killer->ToPlayer()->GetName() +  " (Player)";
         }
         else if (killer->ToCreature())
         {
